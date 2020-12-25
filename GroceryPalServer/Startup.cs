@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using GroceryPalServer.Models;
+using GroceryPalServer.Hubs;
 
 namespace GroceryPalServer
 {
@@ -28,7 +29,7 @@ namespace GroceryPalServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddSignalR();
             services.AddDbContext<GroceryContext>(option => option.UseInMemoryDatabase("GroceryDb"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -55,6 +56,7 @@ namespace GroceryPalServer
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<GroceryHub>("/GroceryHub");
                 endpoints.MapControllers();
             });
         }
