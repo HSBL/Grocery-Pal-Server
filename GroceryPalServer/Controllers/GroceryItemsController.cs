@@ -73,7 +73,41 @@ namespace GroceryPalServer.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id}/picked")]
+        [HttpPut("{id}/Picked")]
+        public async Task<IActionResult> PickedPutGroceryItem(int id)
+        {
+
+            var groceryItem = await _context.groceryItems.FindAsync(id);
+
+            if (groceryItem == null)
+            {
+                return BadRequest();
+            }
+
+            groceryItem.Updated = DateTime.UtcNow;
+            groceryItem.AlreadyPicked = true;
+            _context.Entry(groceryItem).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!GroceryItemExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/Picked")]
         public async Task<IActionResult> PickGroceryItem(int id)
         {
             var groceryItem = await _context.groceryItems.FindAsync(id);
@@ -130,6 +164,36 @@ namespace GroceryPalServer.Controllers
             }
 
             _context.groceryItems.Remove(groceryItem);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("Clear")]
+        public async Task<IActionResult> ClearGroceryItem()
+        {
+            var groceryItems = await _context.groceryItems.Where(x => x.AlreadyPicked == true).ToListAsync();
+            if (groceryItems == null)
+            {
+                return NotFound();
+            }
+
+            _context.groceryItems.RemoveRange(groceryItems);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("Destroy")]
+        public async Task<IActionResult> DestroyGroceryItem()
+        {
+            var groceryItems = await _context.groceryItems.Where(x => true).ToListAsync();
+            if (groceryItems == null)
+            {
+                return NotFound();
+            }
+
+            _context.groceryItems.RemoveRange(groceryItems);
             await _context.SaveChangesAsync();
 
             return NoContent();
