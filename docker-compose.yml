@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  grocerypalserver:
+    image: ${DOCKER_REGISTRY-}grocerypalserver
+    build:
+      context: .
+      dockerfile: GroceryPalServer/Dockerfile
